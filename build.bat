@@ -4,7 +4,7 @@ setlocal
 cd /d "%~dp0"
 call :findjar
 if "%SERVER%"=="" ( echo Server JAR not found. Set OPENVOXEL_SERVER_JAR or copy it to server\openvoxel-server.jar & exit /b 1 )
-set "OUT=dist\ModLoader-v1.0.0-vgame-0.8.0-server.jar"
+set "OUT=dist\ModLoader-v1.0.0-vgame-0.0.8-server.jar"
 if exist build\classes rmdir /s /q build\classes
 mkdir build\classes
 if not exist dist mkdir dist

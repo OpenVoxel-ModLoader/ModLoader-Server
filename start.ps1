@@ -23,7 +23,7 @@ if (-not $jar -or -not (Test-Path $jar)) {
     exit 1
 }
 # Core plugin
-$core = Join-Path $base 'dist\ModLoader-v1.0.0-vgame-0.8.0-server.jar'
+$core = Join-Path $base 'dist\ModLoader-v1.0.0-vgame-0.0.8-server.jar'
 if (!(Test-Path $core)) { $env:OPENVOXEL_SERVER_JAR = $jar; & cmd /c (Join-Path $base 'build.bat'); if ($LASTEXITCODE -ne 0) { throw 'Build failed' } }
 Copy-Item $core (Join-Path $base 'plugins') -Force
 if ($settings['runtime.auto-deploy-mods'] -eq 'true') { Get-ChildItem (Join-Path $base 'mods') -Filter '*.jar' | Copy-Item -Destination (Join-Path $base 'plugins') -Force }

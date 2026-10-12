@@ -9,7 +9,7 @@ Part of [github.com/OpenVoxel-ModLoader](https://github.com/OpenVoxel-ModLoader)
 ## English
 
 Runs the official OpenVoxel dedicated server unmodified, with the **ModLoader server core**
-plugin (`ModLoader-v1.0.0-vgame-0.8.0-server.jar`) and any plugins you drop in `mods/`.
+plugin (`ModLoader-v1.0.0-vgame-0.0.8-server.jar`) and any plugins you drop in `mods/`.
 Server plugins use the official plugin API (`net.openvoxel.server.plugin.*`).
 
 ### Run
@@ -39,7 +39,7 @@ Console commands from stdin, `/help` with colors, `/say`, `/list`, `/players`, `
 ## Español
 
 Ejecuta el servidor dedicado oficial de OpenVoxel sin modificar, con el plugin **núcleo del
-ModLoader** (`ModLoader-v1.0.0-vgame-0.8.0-server.jar`) y los plugins que pongas en `mods/`.
+ModLoader** (`ModLoader-v1.0.0-vgame-0.0.8-server.jar`) y los plugins que pongas en `mods/`.
 Los plugins de servidor usan la API oficial (`net.openvoxel.server.plugin.*`).
 
 ### Ejecutar

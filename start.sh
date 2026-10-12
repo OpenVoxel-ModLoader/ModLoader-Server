@@ -14,7 +14,7 @@ if [ -z "$JAR" ] || [ ! -f "$JAR" ]; then
   echo "ES: No se encontró el JAR del servidor. Descarga openvoxel-server-*.jar y configura server.jar en server.properties.yml (o cópialo a server/openvoxel-server.jar)." >&2
   exit 1
 fi
-CORE="dist/ModLoader-v1.0.0-vgame-0.8.0-server.jar"
+CORE="dist/ModLoader-v1.0.0-vgame-0.0.8-server.jar"
 [ -f "$CORE" ] || OPENVOXEL_SERVER_JAR="$JAR" ./build.sh
 cp -f "$CORE" plugins/
 [ "$(cfg runtime auto-deploy-mods)" = "true" ] && cp -f mods/*.jar plugins/ 2>/dev/null
