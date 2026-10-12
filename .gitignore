@@ -13,3 +13,7 @@ logs/*
 crash-reports/
 world/
 !**/.gitkeep
+bin/
+.settings/
+.project
+.classpath
