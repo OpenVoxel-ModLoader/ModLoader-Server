@@ -1,0 +1,15 @@
+# build output
+build/
+dist/
+.gradle/
+.idea/
+.vscode/
+
+# runtime data; folders are kept with .gitkeep
+server/*
+plugins/*
+mods/*
+logs/*
+crash-reports/
+world/
+!**/.gitkeep

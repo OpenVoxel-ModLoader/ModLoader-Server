@@ -1,0 +1,24 @@
+# OpenVoxel ModLoader - server configuration
+server:
+  # Dedicated server JAR (download it from open-voxel.net). Relative to this folder, or absolute.
+  # Leave empty to use OPENVOXEL_SERVER_JAR / server/openvoxel-server.jar / ../../../ServerTest/*.jar
+  jar: ''
+  port: 25565
+  seed: 123456789
+  # Local testing avoids launcher session-token validation.
+  online-mode: false
+  auth-server: https://open-voxel.net
+  # auto-from-client means the --server-id argument is omitted intentionally.
+  server-id: auto-from-client
+
+jvm:
+  java: java
+  min-memory: 1G
+  max-memory: 4G
+  use-g1gc: true
+
+runtime:
+  # Copy every JAR from mods/ into plugins/ before starting (the core ModLoader jar too).
+  auto-deploy-mods: true
+  write-latest-log: true
+  crash-reports: true

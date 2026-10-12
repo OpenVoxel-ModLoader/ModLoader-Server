@@ -1,0 +1,5 @@
+name: ModLoader
+main: com.happyuky7.openvoxelmoding.server.core.ModLoaderServer
+version: 1.0.0
+author: OpenVoxel-ModLoader
+description: OpenVoxel ModLoader server core - console, colors, utility commands
