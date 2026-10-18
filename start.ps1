@@ -23,8 +23,10 @@ if (-not $jar -or -not (Test-Path $jar)) {
     exit 1
 }
 # Core plugin
-$core = Join-Path $base 'dist\ModLoader-v1.0.0-vgame-0.0.8-server.jar'
+$core = Join-Path $base 'dist\ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar'
 if (!(Test-Path $core)) { $env:OPENVOXEL_SERVER_JAR = $jar; & cmd /c (Join-Path $base 'build.bat'); if ($LASTEXITCODE -ne 0) { throw 'Build failed' } }
+# Remove other versions of the core plugin so only one ModLoader is loaded
+Get-ChildItem (Join-Path $base 'plugins') -Filter 'ModLoader-v*-server.jar' | Where-Object { $_.Name -ne (Split-Path $core -Leaf) } | Remove-Item -Force
 Copy-Item $core (Join-Path $base 'plugins') -Force
 if ($settings['runtime.auto-deploy-mods'] -eq 'true') { Get-ChildItem (Join-Path $base 'mods') -Filter '*.jar' | Copy-Item -Destination (Join-Path $base 'plugins') -Force }
 $java = $settings['jvm.java']; if (!$java) { $java='java' }

@@ -40,7 +40,7 @@ public final class ModLoaderServer extends Plugin implements Listener {
         }, this);
         commands.register("version", "Shows server and mod versions", (player, args) -> {
             player.sendMessage("OpenVoxel Server 0.0.8-SNAPSHOT");
-            player.sendMessage("OpenVoxel ModLoader Server 1.0.0 | API 0.0.8");
+            player.sendMessage("OpenVoxel ModLoader Server " + getDescription().getVersion() + " | API 0.0.8");
         }, this);
         commands.register("players", "Lists online players", (player, args) -> {
             StringJoiner names=new StringJoiner(", ");
