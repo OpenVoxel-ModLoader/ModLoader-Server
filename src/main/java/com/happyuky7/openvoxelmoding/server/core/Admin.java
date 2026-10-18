@@ -52,6 +52,7 @@ final class Admin implements Listener {
         c.register("delwarp", "<name> - delete a warp", (p, a) -> { if (a.length == 0) { p.sendMessage("&cUsage: /delwarp <name>"); return; } p.sendMessage(warps.remove(a[0].toLowerCase(Locale.ROOT)) != null ? "&aWarp deleted." : "&cNo such warp."); save(warps, "warps.properties"); }, plugin);
         c.register("warps", "list warps", (p, a) -> p.sendMessage("&eWarps: &f" + String.join(", ", warpNames())), plugin);
         c.register("perms", "<check|reload> - permission tools", this::perms, plugin);
+        c.register("give", "[player] <item> [count] - give items (ModLoader clients)", this::give, plugin);
         Permissions.registerCommand("gm", "openvoxel.command.gamemode");
         Permissions.registerCommand("tell", "openvoxel.command.msg");
         Permissions.registerCommand("list", "openvoxel.command.list");
@@ -66,8 +67,15 @@ final class Admin implements Listener {
                 "# Placeholders: {online} {max} {player} {prefix} {suffix} {server} {version} {provider}",
                 "enabled: true",
                 "refresh-seconds: 2",
-                "header: '&b&lOpenVoxel &f&lServer'",
-                "footer: '&7Online: &a{online}&7/&a{max}  &8|  &7ModLoader &e{version}'",
+                "# header and footer: a list (one line each) or a single text where \\n starts a new line.",
+                "header:",
+                "  - '&b&lOpenVoxel &f&lServer'",
+                "  - '&7Welcome, &e{player}'",
+                "  - ''",
+                "footer:",
+                "  - ''",
+                "  - '&7Online: &a{online}&7/&a{max}'",
+                "  - '&8ModLoader {version} | permissions: {provider}'",
                 "# How each player is shown. {prefix}/{suffix} come from the permission plugin (LuckPerms meta).",
                 "name-format: '{prefix}{player}{suffix}'",
                 ""));
@@ -161,6 +169,26 @@ final class Admin implements Listener {
         if (target != sender) sender.sendMessage("&aSet " + target.getName() + "'s game mode to " + mode + ".");
     }
 
+    /** /give [player] <item> [count]: the target's ModLoader client adds the items (or drops what does not fit). */
+    private void give(Player sender, String[] a) {
+        if (a.length == 0) { sender.sendMessage("&cUsage: /give [player] <item> [count]"); return; }
+        Player target = null;
+        int i = 0;
+        Player named = VoxelServer.getPlayer(a[0]);
+        if (named != null && a.length >= 2) { target = named; i = 1; }
+        if (target == null) {
+            if (Permissions.isConsole(sender)) { sender.sendMessage("Usage from console: give <player> <item> [count]"); return; }
+            target = sender;
+        }
+        if (target != sender && !Permissions.has(sender, "openvoxel.command.give.others")) { sender.sendMessage("&cYou can't give items to other players &8(openvoxel.command.give.others)"); return; }
+        if (!modded.contains(target.getName())) { sender.sendMessage("&c" + target.getName() + " is not using the ModLoader client (items are client-side)."); return; }
+        String item = a[i];
+        int count = 1;
+        if (a.length > i + 1) try { count = Math.max(1, Math.min(2304, Integer.parseInt(a[i + 1]))); } catch (NumberFormatException e) { sender.sendMessage("&cNot a number: " + a[i + 1]); return; }
+        send(target, "give " + item + " " + count);
+        if (target != sender) sender.sendMessage("&aGave " + count + " " + item + " to " + target.getName() + ".");
+    }
+
     // ---- tab list --------------------------------------------------------------------
 
     private void startTab() {
@@ -175,15 +203,22 @@ final class Admin implements Listener {
         List<Player> online = new ArrayList<>(VoxelServer.getOnlinePlayers());
         online.sort(Comparator.comparing(p -> p.getName().toLowerCase(Locale.ROOT)));
         for (Player p : online) { raw.add(p.getName()); shown.add(placeholders(tablist.get("name-format", "{prefix}{player}{suffix}"), p).replace(",", " ")); }
-        String header = placeholders(tablist.get("header", ""), viewer).replace("\t", " ");
-        String footer = placeholders(tablist.get("footer", ""), viewer).replace("\t", " ");
+        String header = placeholders(multiline("header"), viewer).replace("\t", " ").replace("\n", "\u0002");
+        String footer = placeholders(multiline("footer"), viewer).replace("\t", " ").replace("\n", "\u0002");
         send(viewer, "tab " + header + "\t" + footer + "\t" + String.join(",", shown) + "\t" + String.join(",", raw));
+    }
+
+    /** header/footer may be a YAML list (one line per item) or a string with \\n line breaks. */
+    private String multiline(String key) {
+        List<String> list = tablist.list(key);
+        if (!list.isEmpty()) return String.join("\n", list);
+        return tablist.get(key, "").replace("\\n", "\n");
     }
 
     private String placeholders(String s, Player p) {
         int max = server.getInt("gameplay.max-players", 0);
         return s.replace("{online}", String.valueOf(VoxelServer.getOnlinePlayers().size()))
-                .replace("{max}", max > 0 ? String.valueOf(max) : "∞")
+                .replace("{max}", max > 0 ? String.valueOf(max) : "-")
                 .replace("{player}", p.getName())
                 .replace("{prefix}", Permissions.prefix(p))
                 .replace("{suffix}", Permissions.suffix(p))
