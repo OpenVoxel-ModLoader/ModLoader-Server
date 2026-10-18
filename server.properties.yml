@@ -11,6 +11,19 @@ server:
   # auto-from-client means the --server-id argument is omitted intentionally.
   server-id: auto-from-client
 
+gameplay:
+  # Shown in the tab list and messages ({server}).
+  server-name: OpenVoxel
+  # Message sent to players when they join (supports &colors and {player}). Empty = none.
+  motd: '&7Welcome, &e{player}&7! Type &a/help&7.'
+  # Game mode for new players with the ModLoader client: survival or creative. Change it per player with /gamemode (ops).
+  default-gamemode: survival
+  # 0 = unlimited. Operators can always join.
+  max-players: 20
+  # Only players added with /whitelist add can join (operators always can).
+  whitelist: false
+  whitelist-message: 'You are not whitelisted on this server.'
+
 jvm:
   java: java
   min-memory: 1G

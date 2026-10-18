@@ -1,5 +1,5 @@
 name: ModLoader
 main: com.happyuky7.openvoxelmoding.server.core.ModLoaderServer
-version: 1.0.0
+version: 1.1.0-pre1
 author: OpenVoxel-ModLoader
-description: OpenVoxel ModLoader server core - console, colors, utility commands
+description: OpenVoxel ModLoader server core - console, permissions, ops, game modes, tab list, warps
