@@ -9,6 +9,8 @@ dist/
 server/*
 plugins/*
 mods/*
+agent/*
+!agent/README.txt
 logs/*
 crash-reports/
 world/

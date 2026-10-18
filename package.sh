@@ -5,7 +5,10 @@ cd "$(dirname "$0")"
 JAR="dist/ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar"
 [ -f "$JAR" ] || ./build.sh
 STAGE="$(mktemp -d)/ModLoader-Server"
-mkdir -p "$STAGE/dist" "$STAGE"/{mods,plugins,server,logs}
+mkdir -p "$STAGE/dist" "$STAGE"/{mods,plugins,server,logs,agent}
+cp agent/README.txt "$STAGE/agent/"
+AGENT_JAR="$(ls -t ../ModLoader-Client/dist/ModLoader-v*-client.jar 2>/dev/null | head -n 1 || true)"
+[ -n "$AGENT_JAR" ] && cp "$AGENT_JAR" "$STAGE/agent/"
 cp "$JAR" "$STAGE/dist/"
 cp start.bat start.ps1 start.sh server.properties.yml README.md LICENSE "$STAGE/"
 chmod +x "$STAGE/start.sh"

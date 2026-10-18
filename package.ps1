@@ -11,7 +11,11 @@ $bundle = Join-Path $stage 'ModLoader-Server'
 New-Item -ItemType Directory -Force (Join-Path $bundle 'dist') | Out-Null
 Copy-Item $jar (Join-Path $bundle 'dist')
 foreach ($f in 'start.bat','start.ps1','start.sh','server.properties.yml','README.md','LICENSE') { Copy-Item $f $bundle }
-foreach ($d in 'mods','plugins','server','logs') { New-Item -ItemType Directory -Force (Join-Path $bundle $d) | Out-Null }
+foreach ($d in 'mods','plugins','server','logs','agent') { New-Item -ItemType Directory -Force (Join-Path $bundle $d) | Out-Null }
+Copy-Item 'agent\README.txt' (Join-Path $bundle 'agent')
+# Bundle the ModLoader agent (client jar) when it is built next to this repo: enables native blocks from mods.
+$agentJar = Get-ChildItem '..\ModLoader-Client\dist' -Filter 'ModLoader-v*-client.jar' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if ($agentJar) { Copy-Item $agentJar.FullName (Join-Path $bundle 'agent') }
 Set-Content (Join-Path $bundle 'server\PUT-openvoxel-server.jar-HERE.txt') "Download openvoxel-server-0.0.8-SNAPSHOT.jar from open-voxel.net and save it here as openvoxel-server.jar (or set server.jar in server.properties.yml)."
 $zip = Join-Path $root 'dist\ModLoader-Server-v1.1.0-pre2-vgame-0.0.8.zip'
 if (Test-Path $zip) { Remove-Item $zip }

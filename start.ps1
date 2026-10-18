@@ -28,10 +28,21 @@ if (!(Test-Path $core)) { $env:OPENVOXEL_SERVER_JAR = $jar; & cmd /c (Join-Path 
 # Remove other versions of the core plugin so only one ModLoader is loaded
 Get-ChildItem (Join-Path $base 'plugins') -Filter 'ModLoader-v*-server.jar' | Where-Object { $_.Name -ne (Split-Path $core -Leaf) } | Remove-Item -Force
 Copy-Item $core (Join-Path $base 'plugins') -Force
-if ($settings['runtime.auto-deploy-mods'] -eq 'true') { Get-ChildItem (Join-Path $base 'mods') -Filter '*.jar' | Copy-Item -Destination (Join-Path $base 'plugins') -Force }
+# mods/ holds server plugins (plugin.yml -> copied to plugins/) and ModLoader mods (openvoxel.mod.properties ->
+# read by the ModLoader agent for native blocks). A jar can be both.
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+function Test-JarEntry($jarPath, $entry) { try { $z = [System.IO.Compression.ZipFile]::OpenRead($jarPath); try { return [bool]($z.Entries | Where-Object { $_.FullName -eq $entry }) } finally { $z.Dispose() } } catch { return $false } }
+if ($settings['runtime.auto-deploy-mods'] -eq 'true') {
+    Get-ChildItem (Join-Path $base 'mods') -Filter '*.jar' | Where-Object { Test-JarEntry $_.FullName 'plugin.yml' } | Copy-Item -Destination (Join-Path $base 'plugins') -Force
+}
 $java = $settings['jvm.java']; if (!$java) { $java='java' }
 $jvmArgs = @("-Xms$($settings['jvm.min-memory'])","-Xmx$($settings['jvm.max-memory'])")
 if ($settings['jvm.use-g1gc'] -eq 'true') { $jvmArgs += '-XX:+UseG1GC' }
+# ModLoader agent (native blocks from mods): agent\ModLoader-*-client.jar or OPENVOXEL_MODLOADER_AGENT
+$agent = $env:OPENVOXEL_MODLOADER_AGENT
+if (-not $agent) { $found = Get-ChildItem (Join-Path $base 'agent') -Filter 'ModLoader-v*-client.jar' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if ($found) { $agent = $found.FullName } }
+if ($agent -and (Test-Path $agent)) { $jvmArgs += "-javaagent:$agent=server"; Write-Host "ModLoader agent: $agent (native blocks enabled)" }
+else { Write-Host 'ModLoader agent not found in agent\ - native mod blocks are disabled (plugins still work).' }
 $serverArgs = @('-jar', $jar, '--port',$settings['server.port'],'--seed',$settings['server.seed'],'--online-mode',$settings['server.online-mode'],'--auth-server',$settings['server.auth-server'])
 $configuredServerId = $settings['server.server-id']
 if ($configuredServerId -and $configuredServerId -notin @('auto','auto-from-client')) { $serverArgs += @('--server-id',$configuredServerId) }

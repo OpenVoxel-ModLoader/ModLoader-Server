@@ -18,10 +18,15 @@ CORE="dist/ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar"
 [ -f "$CORE" ] || OPENVOXEL_SERVER_JAR="$JAR" ./build.sh
 for old in plugins/ModLoader-v*-server.jar; do [ -e "$old" ] && [ "$(basename "$old")" != "$(basename "$CORE")" ] && rm -f "$old"; done
 cp -f "$CORE" plugins/
-[ "$(cfg runtime auto-deploy-mods)" = "true" ] && cp -f mods/*.jar plugins/ 2>/dev/null
+# mods/: server plugins (plugin.yml -> copied to plugins/) and ModLoader mods (read by the agent for native blocks)
+if [ "$(cfg runtime auto-deploy-mods)" = "true" ]; then
+  for j in mods/*.jar; do [ -f "$j" ] || continue; if unzip -l "$j" 2>/dev/null | grep -q " plugin.yml$" || jar tf "$j" 2>/dev/null | grep -qx "plugin.yml"; then cp -f "$j" plugins/; fi; done
+fi
 JAVA="$(cfg jvm java)"; JAVA="${JAVA:-java}"
 ARGS=(-Xms"$(cfg jvm min-memory)" -Xmx"$(cfg jvm max-memory)")
 [ "$(cfg jvm use-g1gc)" = "true" ] && ARGS+=(-XX:+UseG1GC)
+AGENT="${OPENVOXEL_MODLOADER_AGENT:-$(ls -t agent/ModLoader-v*-client.jar 2>/dev/null | head -n 1)}"
+if [ -n "$AGENT" ] && [ -f "$AGENT" ]; then ARGS+=("-javaagent:$AGENT=server"); echo "ModLoader agent: $AGENT (native blocks enabled)"; else echo "ModLoader agent not found in agent/ - native mod blocks are disabled (plugins still work)."; fi
 ARGS+=(-jar "$JAR" --port "$(cfg server port)" --seed "$(cfg server seed)" --online-mode "$(cfg server online-mode)" --auth-server "$(cfg server auth-server)")
 SID="$(cfg server server-id)"
 case "$SID" in ""|auto|auto-from-client) ;; *) ARGS+=(--server-id "$SID");; esac
