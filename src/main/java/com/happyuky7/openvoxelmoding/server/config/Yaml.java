@@ -1,4 +1,4 @@
-package com.happyuky7.openvoxelmoding.server.core;
+package com.happyuky7.openvoxelmoding.server.config;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -9,11 +9,12 @@ import java.util.*;
  * Small YAML subset for the ModLoader server files: {@code key: value}, nested sections
  * (keys become {@code section.key}) and {@code - item} lists under a key.
  */
-final class Yaml {
-    final Map<String, String> values = new LinkedHashMap<>();
-    final Map<String, List<String>> lists = new LinkedHashMap<>();
+public final class Yaml {
+    private final Map<String, String> values = new LinkedHashMap<>();
+    private final Map<String, List<String>> lists = new LinkedHashMap<>();
 
-    static Yaml load(Path path) {
+    /** Reads a file; a missing or unreadable file gives an empty Yaml. */
+    public static Yaml load(Path path) {
         Yaml y = new Yaml();
         if (!Files.isRegularFile(path)) return y;
         try {
@@ -64,15 +65,19 @@ final class Yaml {
         return v;
     }
 
-    String get(String key, String def) { return values.getOrDefault(key, def); }
-    int getInt(String key, int def) { try { return Integer.parseInt(get(key, "").trim()); } catch (Exception e) { return def; } }
-    boolean getBool(String key, boolean def) { String v = get(key, null); return v == null ? def : v.trim().equalsIgnoreCase("true"); }
-    List<String> list(String key) { return lists.getOrDefault(key, Collections.emptyList()); }
+    public String get(String key, String def) { return values.getOrDefault(key, def); }
+    public int getInt(String key, int def) { try { return Integer.parseInt(get(key, "").trim()); } catch (Exception e) { return def; } }
+    public boolean getBool(String key, boolean def) { String v = get(key, null); return v == null ? def : v.trim().equalsIgnoreCase("true"); }
+    /** All scalar values with their full dotted keys. */
+    public Map<String, String> values() { return Collections.unmodifiableMap(values); }
+    /** true if the key exists as a value or a list. */
+    public boolean has(String key) { return values.containsKey(key) || lists.containsKey(key); }
+    public List<String> list(String key) { return lists.getOrDefault(key, Collections.emptyList()); }
 
-    static String quote(String v) { return "'" + v.replace("'", "''") + "'"; }
+    public static String quote(String v) { return "'" + v.replace("'", "''") + "'"; }
 
     /** Writes the file only if it does not exist yet (defaults with comments). */
-    static void writeDefault(Path path, String content) {
+    public static void writeDefault(Path path, String content) {
         try { if (!Files.exists(path)) { Files.createDirectories(path.toAbsolutePath().getParent()); Files.writeString(path, content, StandardCharsets.UTF_8); } }
         catch (Exception error) { System.err.println("[ModLoader] cannot write " + path + ": " + error); }
     }

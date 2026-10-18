@@ -14,8 +14,11 @@ server:
 gameplay:
   # Shown in the tab list and messages ({server}).
   server-name: OpenVoxel
-  # Message sent to players when they join (supports &colors and {player}). Empty = none.
-  motd: '&7Welcome, &e{player}&7! Type &a/help&7.'
+  # Text under the server name in the multiplayer server list (ModLoader clients; needs the agent in agent/).
+  # &colors supported, up to two lines separated with \n.
+  motd: '&bAn OpenVoxel server\n&7running &eModLoader'
+  # Chat message sent to players when they join (supports &colors and placeholders like {player}). Empty = none.
+  welcome-message: '&7Welcome, &e{player}&7! Type &a/help&7.'
   # Game mode for new players with the ModLoader client: survival or creative. Change it per player with /gamemode (ops).
   default-gamemode: survival
   # 0 = unlimited. Operators can always join.

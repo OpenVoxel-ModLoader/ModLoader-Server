@@ -9,7 +9,11 @@ Part of [github.com/OpenVoxel-ModLoader](https://github.com/OpenVoxel-ModLoader)
 ## English
 
 Runs the official OpenVoxel dedicated server unmodified, with the **ModLoader server core**
-plugin (`ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar`) and any plugins you drop in `mods/`.
+plugin (`ModLoader-v1.1.0-pre3-vgame-0.0.8-server.jar`) and any plugins you drop in `mods/`.
+
+Code layout (`src/main/java/com/happyuky7/openvoxelmoding/server/`): `core` (plugin entry, context, console),
+`config`, `permissions` (public API for plugins), `net` (ModLoader client channel), `command`, `listener`,
+`tablist`, `player` and `world`.
 Server plugins use the official plugin API (`net.openvoxel.server.plugin.*`).
 
 ### Run
@@ -39,7 +43,7 @@ Console commands from stdin, `/help` with colors, `/say`, `/list`, `/players`, `
 ## Español
 
 Ejecuta el servidor dedicado oficial de OpenVoxel sin modificar, con el plugin **núcleo del
-ModLoader** (`ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar`) y los plugins que pongas en `mods/`.
+ModLoader** (`ModLoader-v1.1.0-pre3-vgame-0.0.8-server.jar`) y los plugins que pongas en `mods/`.
 Los plugins de servidor usan la API oficial (`net.openvoxel.server.plugin.*`).
 
 ### Ejecutar

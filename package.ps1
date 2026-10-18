@@ -1,9 +1,9 @@
-# Builds the ready-to-use server bundle: dist\ModLoader-Server-v1.1.0-pre2-vgame-0.0.8.zip
+# Builds the ready-to-use server bundle: dist\ModLoader-Server-v1.1.0-pre3-vgame-0.0.8.zip
 # Contents: dist\<core jar>, start.bat/.ps1/.sh, server.properties.yml, mods\ plugins\ server\ folders, README, LICENSE.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
-$jar = 'dist\ModLoader-v1.1.0-pre2-vgame-0.0.8-server.jar'
+$jar = 'dist\ModLoader-v1.1.0-pre3-vgame-0.0.8-server.jar'
 if (!(Test-Path $jar)) { & cmd /c build.bat; if ($LASTEXITCODE -ne 0) { throw 'Build failed' } }
 $stage = Join-Path $env:TEMP 'ModLoader-Server-bundle'
 if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
@@ -17,7 +17,7 @@ Copy-Item 'agent\README.txt' (Join-Path $bundle 'agent')
 $agentJar = Get-ChildItem '..\ModLoader-Client\dist' -Filter 'ModLoader-v*-client.jar' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if ($agentJar) { Copy-Item $agentJar.FullName (Join-Path $bundle 'agent') }
 Set-Content (Join-Path $bundle 'server\PUT-openvoxel-server.jar-HERE.txt') "Download openvoxel-server-0.0.8-SNAPSHOT.jar from open-voxel.net and save it here as openvoxel-server.jar (or set server.jar in server.properties.yml)."
-$zip = Join-Path $root 'dist\ModLoader-Server-v1.1.0-pre2-vgame-0.0.8.zip'
+$zip = Join-Path $root 'dist\ModLoader-Server-v1.1.0-pre3-vgame-0.0.8.zip'
 if (Test-Path $zip) { Remove-Item $zip }
 Compress-Archive -Path $bundle -DestinationPath $zip
 Remove-Item -Recurse -Force $stage

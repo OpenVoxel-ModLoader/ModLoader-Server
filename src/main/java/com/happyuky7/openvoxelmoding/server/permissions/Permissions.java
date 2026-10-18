@@ -1,4 +1,6 @@
-package com.happyuky7.openvoxelmoding.server.core;
+package com.happyuky7.openvoxelmoding.server.permissions;
+
+import com.happyuky7.openvoxelmoding.server.config.Yaml;
 
 import net.openvoxel.server.plugin.Player;
 
@@ -34,7 +36,10 @@ public final class Permissions {
     private static final Map<String, String> COMMAND_NODES = new ConcurrentHashMap<>();
     private static final Set<String> DEFAULTS = ConcurrentHashMap.newKeySet();
     private static final Map<String, String> OPS = new ConcurrentHashMap<>();   // lowercase name -> uuid ("" if unknown)
-    static Path dir = Paths.get("plugins", "ModLoader");
+    private static final Path DIR = Paths.get("plugins", "ModLoader");
+
+    /** {@code plugins/ModLoader}: the folder of every ModLoader server file. */
+    public static Path dataFolder() { return DIR; }
 
     // ---- public API ------------------------------------------------------------------
 
@@ -83,19 +88,23 @@ public final class Permissions {
 
     // ---- ops / defaults --------------------------------------------------------------
 
-    static boolean op(String name, String uuid) {
+    /** Makes a player an operator (saved in ops.yml). @return false if already an operator */
+    public static boolean op(String name, String uuid) {
         boolean added = !OPS.containsKey(name.toLowerCase(Locale.ROOT));
         OPS.put(name.toLowerCase(Locale.ROOT), uuid == null ? "" : uuid);
         saveOps();
         return added;
     }
 
-    static boolean deop(String name) { boolean removed = OPS.remove(name.toLowerCase(Locale.ROOT)) != null; saveOps(); return removed; }
+    /** Removes an operator. @return false if the player was not an operator */
+    public static boolean deop(String name) { boolean removed = OPS.remove(name.toLowerCase(Locale.ROOT)) != null; saveOps(); return removed; }
 
-    static Collection<String> ops() { return new TreeSet<>(OPS.keySet()); }
+    /** Operator names, lowercase and sorted. */
+    public static Collection<String> ops() { return new TreeSet<>(OPS.keySet()); }
 
-    static void load() {
-        Yaml.writeDefault(dir.resolve("permissions.yml"), String.join("\n",
+    /** (Re)loads permissions.yml and ops.yml, writing the defaults first if missing. */
+    public static void load() {
+        Yaml.writeDefault(DIR.resolve("permissions.yml"), String.join("\n",
                 "# ModLoader permissions (used when no permission plugin such as LuckPerms is installed).",
                 "# Operators (/op) have every permission. Everyone else gets the nodes listed in 'default'.",
                 "# Nodes support wildcards: 'openvoxel.command.*' or '*'.",
@@ -115,14 +124,14 @@ public final class Permissions {
                 "commands:",
                 "  hg: hungergames.use",
                 ""));
-        Yaml y = Yaml.load(dir.resolve("permissions.yml"));
+        Yaml y = Yaml.load(DIR.resolve("permissions.yml"));
         DEFAULTS.clear();
         DEFAULTS.addAll(y.list("default"));
         DEFAULTS.add("openvoxel.command.mlhello");
-        for (Map.Entry<String, String> e : y.values.entrySet())
+        for (Map.Entry<String, String> e : y.values().entrySet())
             if (e.getKey().startsWith("commands.")) registerCommand(e.getKey().substring(9), e.getValue());
         OPS.clear();
-        Yaml ops = Yaml.load(dir.resolve("ops.yml"));
+        Yaml ops = Yaml.load(DIR.resolve("ops.yml"));
         for (String entry : ops.list("ops")) {
             String[] p = entry.split("\\|", 2);
             if (!p[0].trim().isEmpty()) OPS.put(p[0].trim().toLowerCase(Locale.ROOT), p.length > 1 ? p[1].trim() : "");
@@ -134,11 +143,12 @@ public final class Permissions {
         for (Map.Entry<String, String> e : new TreeMap<>(OPS).entrySet()) sb.append("  - ").append(Yaml.quote(e.getKey() + (e.getValue().isEmpty() ? "" : "|" + e.getValue()))).append('\n');
         if (OPS.isEmpty()) sb.setLength(sb.length() - 1);
         if (OPS.isEmpty()) sb.append(" []\n");
-        try { Files.createDirectories(dir); Files.writeString(dir.resolve("ops.yml"), sb.toString(), StandardCharsets.UTF_8); }
+        try { Files.createDirectories(DIR); Files.writeString(DIR.resolve("ops.yml"), sb.toString(), StandardCharsets.UTF_8); }
         catch (Exception error) { System.err.println("[ModLoader] ops.yml: " + error); }
     }
 
-    static boolean matches(Collection<String> granted, String node) {
+    /** true if a granted node (with * wildcards) covers {@code node}. */
+    public static boolean matches(Collection<String> granted, String node) {
         String n = node.toLowerCase(Locale.ROOT);
         for (String g : granted) {
             String x = g.toLowerCase(Locale.ROOT).trim();

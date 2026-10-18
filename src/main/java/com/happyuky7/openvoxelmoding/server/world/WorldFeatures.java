@@ -1,4 +1,4 @@
-package com.happyuky7.openvoxelmoding.server.core;
+package com.happyuky7.openvoxelmoding.server.world;
 
 import net.openvoxel.server.plugin.VoxelServer;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Server-authoritative terrain decoration for generated/loaded chunks. */
-final class WorldFeatures {
+public final class WorldFeatures {
     private static final int CHUNK = 16;
     private static final int HEIGHT = 256;
     private static final int REGION = 64;
@@ -23,7 +23,7 @@ final class WorldFeatures {
     private final Path index;
     private final Set<Long> processed = Collections.synchronizedSet(new HashSet<>());
 
-    WorldFeatures(Map<String, String> config) {
+    public WorldFeatures(Map<String, String> config) {
         enabled = Boolean.parseBoolean(config.getOrDefault("world.features.enabled", "true"));
         long parsed;
         try { parsed = Long.parseLong(config.getOrDefault("world.features.seed-salt", "7351")); }
@@ -33,7 +33,7 @@ final class WorldFeatures {
         loadIndex();
     }
 
-    void populate(int chunkX, int chunkZ) {
+    public void populate(int chunkX, int chunkZ) {
         if (!enabled) return;
         long key = key(chunkX, chunkZ);
         if (!processed.add(key)) return;
